@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1628" />
+  <meta name="description" content="GovBridge — a transparent, startup-friendly innovation procurement platform for public departments." />
+  <title>GovBridge | Innovation Procurement</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --ink: #122033;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --navy: #0b1628;
+      --navy-2: #10213a;
+      --blue: #2563eb;
+      --blue-2: #dbeafe;
+      --green: #0f9f6e;
+      --green-2: #dff7ee;
+      --amber: #b7791f;
+      --amber-2: #fff4cf;
+      --red: #c73e4d;
+      --red-2: #fee8eb;
+      --shadow-sm: 0 4px 16px rgba(15, 23, 42, .06);
+      --shadow: 0 16px 40px rgba(15, 23, 42, .09);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --sidebar: 274px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+
+    .app-shell { min-height: 100vh; }
+
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: var(--sidebar);
+      background: linear-gradient(180deg, var(--navy), #0d1b31 62%, #102640);
+      color: #dbe5f2;
+      padding: 22px 16px;
+      display: flex;
+      flex-direction: column;
+      z-index: 80;
+      overflow-y: auto;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 8px 10px 18px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .brand-mark {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg, #3b82f6, #22c55e);
+      display: grid; place-items: center; color: #fff; font-weight: 900;
+      box-shadow: 0 10px 22px rgba(37,99,235,.3);
+    }
+    .brand strong { display: block; font-size: 15px; color: #fff; letter-spacing: .2px; }
+    .brand span { display: block; font-size: 11px; color: #94a7bd; margin-top: 2px; }
+
+    .nav-group { margin-top: 18px; }
+    .nav-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: .13em;
+      color: #71869e; padding: 0 11px 8px;
+    }
+    .nav-item {
+      width: 100%; border: 0; background: transparent; color: #cdd8e7;
+      display: flex; align-items: center; gap: 11px; text-align: left;
+      padding: 11px 11px; border-radius: 11px; margin: 2px 0; font-size: 13px;
+    }
+    .nav-item:hover { background: rgba(255,255,255,.06); color: #fff; }
+    .nav-item.active { background: rgba(59,130,246,.16); color: #fff; box-shadow: inset 3px 0 #60a5fa; }
+    .nav-item svg { width: 18px; height: 18px; flex: 0 0 auto; opacity: .9; }
+    .nav-badge { margin-left: auto; font-size: 10px; background: #ef4444; color: #fff; border-radius: 999px; padding: 2px 7px; }
+    .sidebar-spacer { flex: 1; }
+    .support-card {
+      margin: 14px 4px 4px; padding: 14px; border-radius: 14px;
+      background: linear-gradient(145deg, rgba(59,130,246,.17), rgba(34,197,94,.12));
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .support-card b { font-size: 12px; color: #fff; }
+    .support-card p { margin: 6px 0 10px; font-size: 11px; color: #9eb1c7; }
+    .support-card button { width: 100%; border: 0; background: #fff; color: #122033; border-radius: 9px; padding: 8px; font-weight: 700; font-size: 11px; }
+
+    .main {
+      margin-left: var(--sidebar);
+      min-height: 100vh;
+    }
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      height: 68px; background: rgba(255,255,255,.92);
+      backdrop-filter: blur(14px); border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; gap: 12px; padding: 0 28px;
+    }
+    .menu-btn { display: none; width: 40px; height: 40px; border: 1px solid var(--line); background: #fff; border-radius: 10px; }
+    .breadcrumbs { color: var(--muted); font-size: 12px; }
+    .breadcrumbs b { color: var(--ink); }
+    .topbar-spacer { flex: 1; }
+    .search {
+      width: min(320px, 35vw); height: 40px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
+      display: flex; align-items: center; gap: 8px; padding: 0 11px;
+    }
+    .search svg { width: 17px; color: #8190a5; }
+    .search input { border: 0; outline: 0; background: transparent; width: 100%; color: var(--ink); font-size: 12px; }
+    .icon-btn { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: #43536a; position: relative; }
+    .icon-btn .dot { position: absolute; top: 8px; right: 9px; width: 7px; height: 7px; border-radius: 50%; background: #ef4444; border: 1px solid #fff; }
+    .profile-mini { display: flex; align-items: center; gap: 9px; padding-left: 8px; }
+    .avatar { width: 34px; height: 34px; display: grid; place-items: center; background: #dbeafe; color: #1d4ed8; border-radius: 10px; font-weight: 800; font-size: 11px; }
+    .profile-mini div:last-child { font-size: 11px; }
+    .profile-mini b { display: block; font-size: 11px; }
+    .profile-mini span { color: var(--muted); }
+
+    .content { padding: 30px; max-width: 1700px; margin: 0 auto; }
+    .page { display: none; animation: fade .18s ease; }
+    .page.active { display: block; }
+    @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+    .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 24px; }
+    .eyebrow { display: inline-flex; gap: 7px; align-items: center; font-size: 10px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; color: #2563eb; margin-bottom: 7px; }
+    .eyebrow::before { content: ""; width: 7px; height: 7px; background: #3b82f6; border-radius: 50%; }
+    h1 { margin: 0; font-size: clamp(22px, 2vw, 28px); line-height: 1.15; letter-spacing: -.025em; }
+    .subtitle { margin: 8px 0 0; color: var(--muted); font-size: 13px; max-width: 770px; }
+    .page-actions { display: flex; gap: 9px; flex-wrap: wrap; }
+
+    .btn {
+      border: 0; border-radius: 10px; padding: 10px 14px; font-size: 12px; font-weight: 750;
+      display: inline-flex; align-items: center; gap: 8px; justify-content: center; transition: .18s ease;
+    }
+    .btn svg { width: 15px; height: 15px; }
+    .btn-primary { background: var(--blue); color: #fff; box-shadow: 0 7px 17px rgba(37,99,235,.18); }
+    .btn-primary:hover { transform: translateY(-1px); filter: brightness(.96); }
+    .btn-secondary { background: #fff; color: #314158; border: 1px solid var(--line); }
+    .btn-secondary:hover { background: var(--surface-2); }
+    .btn-success { background: var(--green); color: #fff; }
+    .btn-danger { background: #fff; color: var(--red); border: 1px solid #f2c4ca; }
+    .btn.small { padding: 7px 10px; font-size: 11px; }
+
+    .role-strip {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      background: var(--surface); border: 1px solid var(--line); padding: 8px; border-radius: 13px; margin-bottom: 20px; box-shadow: var(--shadow-sm);
+    }
+    .role-copy { padding: 0 7px; font-size: 11px; color: var(--muted); }
+    .role-switch { display: flex; gap: 4px; background: #f1f5f9; border-radius: 9px; padding: 3px; }
+    .role-switch button { border: 0; background: transparent; padding: 7px 11px; border-radius: 7px; font-size: 11px; color: #64748b; }
+    .role-switch button.active { background: #fff; color: #17243a; font-weight: 800; box-shadow: 0 2px 8px rgba(15,23,42,.08); }
+
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-bottom: 17px; }
+    .metric {
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+    }
+    .metric::after { content: ""; position: absolute; width: 90px; height: 90px; right: -36px; top: -36px; background: var(--metric-bg, #eef4ff); border-radius: 50%; }
+    .metric-label { color: var(--muted); font-size: 11px; }
+    .metric-value { margin-top: 7px; font-size: 27px; font-weight: 850; letter-spacing: -.03em; }
+    .metric-foot { margin-top: 8px; display: flex; gap: 5px; align-items: center; font-size: 10px; color: var(--muted); }
+    .up { color: var(--green); font-weight: 800; }
+    .warn { color: var(--amber); font-weight: 800; }
+
+    .grid-2 { display: grid; grid-template-columns: 1.35fr .95fr; gap: 16px; }
+    .grid-2.equal { grid-template-columns: 1fr 1fr; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
+    .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden; }
+    .panel-head { padding: 16px 17px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); }
+    .panel-head h3 { margin: 0; font-size: 13px; }
+    .panel-head p { margin: 4px 0 0; font-size: 10px; color: var(--muted); }
+    .panel-body { padding: 17px; }
+
+    .chart-wrap { height: 256px; padding: 13px 16px 17px; }
+    .chart { width: 100%; height: 100%; display: block; }
+    .legend { display:flex; gap: 14px; margin-top: 3px; font-size: 10px; color: var(--muted); }
+    .legend span { display:flex; align-items:center; gap: 5px; }
+    .legend i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 690px; }
+    th, td { text-align: left; padding: 12px 15px; border-bottom: 1px solid var(--line); font-size: 11px; white-space: nowrap; }
+    th { color: #7a8799; text-transform: uppercase; letter-spacing: .06em; font-size: 9px; background: #fbfcfe; }
+    td:first-child { font-weight: 760; color: #17243a; }
+    tr:last-child td { border-bottom: 0; }
+    .status { display:inline-flex; align-items:center; gap: 5px; border-radius: 999px; padding: 4px 8px; font-size: 9px; font-weight: 800; }
+    .status::before { content:""; width: 5px; height: 5px; border-radius:50%; background: currentColor; }
+    .status.live, .status.approved, .status.completed { color: #087b55; background: var(--green-2); }
+    .status.review, .status.pending { color: #9a650f; background: var(--amber-2); }
+    .status.open, .status.active { color: #2456b3; background: var(--blue-2); }
+    .status.rejected, .status.risk { color: #a12b3b; background: var(--red-2); }
+
+    .challenge-grid { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 15px; }
+    .challenge-card { border:1px solid var(--line); border-radius: 14px; padding: 16px; background:#fff; transition:.18s ease; display:flex; flex-direction:column; min-height: 250px; }
+    .challenge-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-sm); border-color:#cad6e4; }
+    .challenge-top { display:flex; justify-content:space-between; align-items:flex-start; gap: 10px; }
+    .dept-logo { width:37px; height:37px; border-radius:10px; background:#eff6ff; color:#2456b3; display:grid; place-items:center; font-weight:900; font-size:10px; }
+    .tag-row { display:flex; gap:6px; flex-wrap:wrap; margin-top: 11px; }
+    .tag { padding:4px 7px; background:#f1f5f9; color:#56667c; border-radius:6px; font-size:9px; font-weight:700; }
+    .challenge-card h3 { margin: 11px 0 5px; font-size:14px; line-height:1.35; }
+    .challenge-card p { margin: 0; color:var(--muted); font-size:10px; line-height:1.55; }
+    .challenge-meta { margin-top:auto; padding-top:15px; display:flex; justify-content:space-between; border-top:1px dashed var(--line); }
+    .challenge-meta span { color:var(--muted); font-size:9px; }
+    .challenge-meta b { color:#22334a; font-size:10px; }
+    .card-actions { display:flex; gap:7px; margin-top: 12px; }
+    .card-actions .btn { flex:1; }
+
+    .filter-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 14px; }
+    .filter-bar input, .filter-bar select, .field input, .field select, .field textarea {
+      width:100%; border:1px solid var(--line); background:#fff; border-radius:9px; padding:10px 11px; outline:none; color:var(--ink); font-size:11px;
+    }
+    .filter-bar > * { flex:1; min-width: 130px; }
+    .field textarea { min-height: 88px; resize: vertical; }
+    .field label { display:block; font-size:10px; font-weight:800; color:#516074; margin:0 0 6px; }
+    .field { margin-bottom: 12px; }
+    .field-row { display:grid; grid-template-columns:1fr 1fr; gap: 10px; }
+
+    .progress-list { display:flex; flex-direction:column; gap:14px; }
+    .progress-item { display:grid; grid-template-columns: 34px 1fr auto; align-items:center; gap:10px; }
+    .step-num { width:28px; height:28px; border-radius:9px; background:#eff6ff; color:#2563eb; display:grid; place-items:center; font-size:10px; font-weight:900; }
+    .progress-copy b { font-size:11px; display:block; }
+    .progress-copy span { font-size:9px; color:var(--muted); }
+    .bar { height:6px; background:#edf2f7; border-radius:999px; margin-top:6px; overflow:hidden; }
+    .bar > i { display:block; height:100%; width:var(--w); background:linear-gradient(90deg, #2563eb, #22c55e); border-radius:999px; }
+    .percent { font-size:10px; font-weight:800; color:#394b61; }
+
+    .timeline { display:flex; flex-direction:column; }
+    .timeline-item { position:relative; display:grid; grid-template-columns:20px 1fr; gap:10px; padding-bottom:17px; }
+    .timeline-item:not(:last-child)::before { content:""; position:absolute; left:8px; top:17px; bottom:0; width:1px; background:#dbe3ec; }
+    .timeline-dot { width:17px; height:17px; border-radius:50%; background:#fff; border:4px solid #3b82f6; position:relative; z-index:2; }
+    .timeline-item.done .timeline-dot { border-color:#10b981; }
+    .timeline-item b { font-size:10px; }
+    .timeline-item p { margin:3px 0 0; font-size:9px; color:var(--muted); }
+
+    .compliance-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px; }
+    .check { border:1px solid var(--line); border-radius:11px; padding:11px; display:flex; gap:9px; align-items:flex-start; }
+    .check-mark { width:18px; height:18px; flex:0 0 auto; border-radius:6px; display:grid; place-items:center; font-size:10px; font-weight:900; }
+    .check.good .check-mark { background:var(--green-2); color:var(--green); }
+    .check.warn .check-mark { background:var(--amber-2); color:var(--amber); }
+    .check b { font-size:10px; }
+    .check span { display:block; font-size:9px; color:var(--muted); margin-top:3px; }
+
+    .empty { padding:40px 20px; text-align:center; color:var(--muted); font-size:11px; }
+    .mini-kpi { border:1px solid var(--line); border-radius:12px; padding:12px; }
+    .mini-kpi span { color:var(--muted); font-size:9px; }
+    .mini-kpi b { display:block; margin-top:3px; font-size:19px; }
+    .stack { display:flex; flex-direction:column; gap:10px; }
+    .list-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); }
+    .list-row:last-child { border-bottom:0; }
+    .list-icon { width:31px; height:31px; border-radius:9px; background:#f1f5f9; display:grid; place-items:center; font-size:10px; font-weight:900; color:#456079; flex:0 0 auto; }
+    .list-row b { font-size:10px; display:block; }
+    .list-row span { font-size:9px; color:var(--muted); }
+    .row-spacer { flex:1; }
+
+    .hero-banner {
+      border-radius: 20px; padding: 23px; color:#fff; margin-bottom:18px;
+      background: radial-gradient(circle at 75% 10%, rgba(59,130,246,.33), transparent 35%), linear-gradient(120deg,#0b1628,#15365b);
+      box-shadow: var(--shadow); position:relative; overflow:hidden;
+    }
+    .hero-banner::after { content:""; position:absolute; width:240px; height:240px; right:-50px; bottom:-120px; border-radius:50%; border:30px solid rgba(255,255,255,.05); }
+    .hero-banner .eyebrow { color:#9ac0ff; }
+    .hero-banner h2 { margin:0; max-width:660px; font-size:24px; letter-spacing:-.025em; }
+    .hero-banner p { margin:8px 0 15px; color:#b8c8da; font-size:11px; max-width:690px; }
+    .hero-badges { display:flex; gap:7px; flex-wrap:wrap; }
+    .hero-badge { border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.05); color:#dce9f8; border-radius:999px; padding:5px 8px; font-size:9px; }
+
+    .score-ring { width:118px; height:118px; border-radius:50%; background: conic-gradient(#2563eb 0 76%, #e8eef5 76% 100%); display:grid; place-items:center; }
+    .score-ring::after { content:""; width:88px; height:88px; background:#fff; border-radius:50%; position:absolute; }
+    .ring-wrap { width:118px; position:relative; }
+    .ring-label { position:absolute; inset:0; display:grid; place-items:center; z-index:2; font-size:20px; font-weight:900; }
+    .ring-label span { display:block; font-size:8px; color:var(--muted); font-weight:700; text-align:center; margin-top:-2px; }
+
+    .modal-backdrop { position:fixed; inset:0; background:rgba(9,18,34,.52); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; padding:18px; z-index:100; }
+    .modal-backdrop.open { display:flex; }
+    .modal { width:min(720px, 100%); max-height:90vh; overflow:auto; background:#fff; border-radius:18px; box-shadow:0 25px 80px rgba(0,0,0,.28); }
+    .modal-head { padding:17px 18px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; }
+    .modal-head h3 { margin:0; font-size:14px; }
+    .modal-close { width:32px; height:32px; border:1px solid var(--line); background:#fff; border-radius:8px; }
+    .modal-body { padding:18px; }
+    .modal-foot { padding:13px 18px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:8px; }
+
+    .drawer-backdrop { position:fixed; inset:0; background:rgba(9,18,34,.36); display:none; z-index:70; }
+    .drawer-backdrop.open { display:block; }
+
+    .toast { position:fixed; right:20px; bottom:20px; background:#122033; color:#fff; padding:12px 15px; border-radius:10px; box-shadow:var(--shadow); font-size:11px; display:flex; align-items:center; gap:9px; z-index:120; transform:translateY(18px); opacity:0; pointer-events:none; transition:.22s ease; }
+    .toast.show { transform:none; opacity:1; }
+    .toast-dot { width:7px; height:7px; background:#34d399; border-radius:50%; }
+
+    .notice { padding:11px 13px; border-radius:10px; background:#f8fafc; border:1px solid var(--line); font-size:10px; color:#536379; }
+    .notice strong { color:#20324a; }
+    .pill-tabs { display:flex; gap:3px; padding:3px; border-radius:9px; background:#f1f5f9; }
+    .pill-tabs button { border:0; background:transparent; padding:6px 9px; border-radius:7px; font-size:10px; color:#637188; }
+    .pill-tabs button.active { background:#fff; color:#17243a; font-weight:800; box-shadow:0 2px 7px rgba(15,23,42,.08); }
+
+    .kpi-band { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:13px; }
+    .kpi-band .mini-kpi { background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.08); }
+    .kpi-band .mini-kpi span { color:#8fa8c2; }
+    .kpi-band .mini-kpi b { color:#fff; }
+
+    .footer { margin:26px 0 0; padding:16px 4px 6px; color:#8a97a8; font-size:9px; display:flex; justify-content:space-between; gap:12px; border-top:1px solid var(--line); }
+
+    @media (max-width: 1200px) {
+      :root { --sidebar: 235px; }
+      .challenge-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .metrics { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    @media (max-width: 900px) {
+      .sidebar { transform:translateX(-100%); transition:.22s ease; box-shadow: 18px 0 40px rgba(15,23,42,.18); }
+      .sidebar.open { transform:none; }
+      .main { margin-left:0; }
+      .menu-btn { display:grid; place-items:center; }
+      .topbar { padding:0 14px; }
+      .search { width: 40px; padding:0 10px; }
+      .search input { display:none; }
+      .content { padding:18px 14px 28px; }
+      .grid-2, .grid-2.equal { grid-template-columns:1fr; }
+      .grid-3 { grid-template-columns:1fr; }
+    }
+    @media (max-width: 640px) {
+      .profile-mini > div:last-child, .breadcrumbs { display:none; }
+      .page-head { flex-direction:column; }
+      .metrics { grid-template-columns:1fr 1fr; gap:9px; }
+      .metric { padding:13px; }
+      .metric-value { font-size:22px; }
+      .challenge-grid { grid-template-columns:1fr; }
+      .field-row, .compliance-grid, .kpi-band { grid-template-columns:1fr; }
+      .role-strip { flex-direction:column; align-items:stretch; }
+      .role-copy { padding:3px 5px; }
+      .role-switch { width:100%; }
+      .role-switch button { flex:1; }
+      .footer { flex-direction:column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">G</div>
+        <div><strong>GovBridge</strong><span>Innovation Procurement Hub</span></div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-label">Workspace</div>
+        <button class="nav-item active" data-page="dashboard"><span class="i">⌂</span>Dashboard</button>
+        <button class="nav-item" data-page="challenges"><span class="i">▦</span>Challenges <span class="nav-badge">12</span></button>
+        <button class="nav-item" data-page="startups"><span class="i">◈</span>Startup Discovery</button>
+        <button class="nav-item" data-page="evaluations"><span class="i">✓</span>Evaluations</button>
+        <button class="nav-item" data-page="pilots"><span class="i">◫</span>Pilots & Milestones</button>
+        <button class="nav-item" data-page="payments"><span class="i">₹</span>Payments</button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-label">Governance</div>
+        <button class="nav-item" data-page="compliance"><span class="i">▣</span>Compliance Centre</button>
+        <button class="nav-item" data-page="procurement"><span class="i">↗</span>Procurement Path</button>
+        <button class="nav-item" data-page="audit"><span class="i">◷</span>Audit & Evidence</button>
+        <button class="nav-item" data-page="reports"><span class="i">▤</span>Reports</button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-label">System</div>
+        <button class="nav-item" data-page="settings"><span class="i">⚙</span>Settings</button>
+        <button class="nav-item" id="helpBtn"><span class="i">?</span>Help & Support</button>
+      </div>
+
+      <div class="sidebar-spacer"></div>
+      <div class="support-card">
+        <b>Procurement Helpdesk</b>
+        <p>Templates, pilot guidance and platform support in one place.</p>
+        <button id="supportBtn">Open support centre</button>
+      </div>
+    </aside>
+
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
+        <div class="breadcrumbs">GovBridge <span> / </span> <b id="crumb">Dashboard</b></div>
+        <div class="topbar-spacer"></div>
+        <label class="search" aria-label="Global search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
+          <input id="globalSearch" placeholder="Search challenges, startups, pilots..." />
+        </label>
+        <button class="icon-btn" id="notifyBtn" aria-label="Notifications"><span class="dot"></span>🔔</button>
+        <div class="profile-mini"><div class="avatar">DM</div><div><b>Department Admin</b><span>Innovation Cell</span></div></div>
+      </header>
+
+      <div class="content">
+        <!-- DASHBOARD -->
+        <section class="page active" id="page-dashboard">
+          <div class="page-head">
+            <div>
+              <div class="eyebrow">Innovation procurement workspace</div>
+              <h1 id="dashTitle">A transparent path from public need to proven innovation.</h1>
+              <p class="subtitle" id="dashSubtitle">Identify outcome-based problems, discover qualified startups, run controlled pilots, and move evidence into compliant procurement decisions.</p>
+            </div>
+            <div class="page-actions"><button class="btn btn-secondary" id="tourBtn">Product tour</button><button class="btn btn-primary" id="newChallengeBtn">＋ Create challenge</button></div>
+          </div>
+
+          <div class="role-strip">
+            <div class="role-copy"><b id="roleHeading">Viewing as Department</b> · switch perspective to understand the same workflow from each stakeholder's side.</div>
+            <div class="role-switch" id="roleSwitch"><button class="active" data-role="department">Department</button><button data-role="startup">Startup</button><button data-role="evaluator">Evaluator</button></div>
+          </div>
+
+          <div class="hero-banner">
+            <div class="eyebrow">Live programme view</div>
+            <h2 id="heroTitle">12 challenges are currently moving through the innovation pipeline.</h2>
+            <p id="heroText">Standard templates, evidence trails and milestone controls keep experimentation fast without losing procurement discipline.</p>
+            <div class="hero-badges"><span class="hero-badge">Outcome-based briefs</span><span class="hero-badge">Structured evaluation</span><span class="hero-badge">Pilot governance</span><span class="hero-badge">Milestone payments</span></div>
+            <div class="kpi-band"><div class="mini-kpi"><span>Active challenges</span><b>12</b></div><div class="mini-kpi"><span>Startups in pipeline</span><b>86</b></div><div class="mini-kpi"><span>Pilots running</span><b>9</b></div><div class="mini-kpi"><span>Evidence packs ready</span><b>7</b></div></div>
+          </div>
+
+          <div class="metrics">
+            <div class="metric" style="--metric-bg:#eaf2ff"><div class="metric-label">Average discovery cycle</div><div class="metric-value">18 days</div><div class="metric-foot"><span class="up">↓ 31%</span> vs. baseline workflow</div></div>
+            <div class="metric" style="--metric-bg:#e7f8f1"><div class="metric-label">Pilot completion rate</div><div class="metric-value">78%</div><div class="metric-foot"><span class="up">↑ 14 pts</span> over last cohort</div></div>
+            <div class="metric" style="--metric-bg:#fff3da"><div class="metric-label">Milestones verified</div><div class="metric-value">42 / 54</div><div class="metric-foot"><span class="warn">12 pending</span> departmental review</div></div>
+            <div class="metric" style="--metric-bg:#fcebec"><div class="metric-label">Payments awaiting action</div><div class="metric-value">₹18.6L</div><div class="metric-foot">across <b>11</b> approved milestones</div></div>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-head"><div><h3>Innovation pipeline</h3><p>Projects by stage · current programme</p></div><div class="pill-tabs"><button class="active">6 months</button><button>12 months</button></div></div>
+              <div class="chart-wrap">
+                <svg class="chart" viewBox="0 0 760 250" preserveAspectRatio="none" aria-label="Pipeline chart">
+                  <g stroke="#edf2f7" stroke-width="1"><line x1="44" y1="30" x2="740" y2="30"/><line x1="44" y1="80" x2="740" y2="80"/><line x1="44" y1="130" x2="740" y2="130"/><line x1="44" y1="180" x2="740" y2="180"/><line x1="44" y1="230" x2="740" y2="230"/></g>
+                  <g fill="#94a3b8" font-size="9"><text x="12" y="33">80</text><text x="12" y="83">60</text><text x="12" y="133">40</text><text x="12" y="183">20</text><text x="20" y="233">0</text></g>
+                  <path d="M55 204 C160 192 178 150 270 156 S395 125 480 112 S594 78 730 72" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M55 217 C165 213 190 188 270 183 S390 169 480 155 S594 132 730 122" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
+                  <g fill="#fff" stroke="#2563eb" stroke-width="2"><circle cx="55" cy="204" r="4"/><circle cx="270" cy="156" r="4"/><circle cx="480" cy="112" r="4"/><circle cx="730" cy="72" r="4"/></g>
+                  <g fill="#fff" stroke="#10b981" stroke-width="2"><circle cx="55" cy="217" r="4"/><circle cx="270" cy="183" r="4"/><circle cx="480" cy="155" r="4"/><circle cx="730" cy="122" r="4"/></g>
+                  <g fill="#7d8998" font-size="9"><text x="42" y="247">Apr</text><text x="178" y="247">May</text><text x="316" y="247">Jun</text><text x="454" y="247">Jul</text><text x="592" y="247">Aug</text><text x="718" y="247">Sep</text></g>
+                </svg>
+                <div class="legend"><span><i style="background:#2563eb"></i>Challenges</span><span><i style="background:#10b981"></i>Validated pilots</span></div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head"><div><h3>Attention queue</h3><p>Items needing action today</p></div><button class="btn btn-secondary small" onclick="go('audit')">Open queue</button></div>
+              <div class="panel-body stack">
+                <div class="list-row"><div class="list-icon">01</div><div><b>Mobility Data Challenge</b><span>2 evaluation rubrics incomplete</span></div><div class="row-spacer"></div><span class="status review">Review</span></div>
+                <div class="list-row"><div class="list-icon">₹</div><div><b>Water Leak Pilot · M2</b><span>Proof uploaded · payment trigger</span></div><div class="row-spacer"></div><span class="status pending">Payment</span></div>
+                <div class="list-row"><div class="list-icon">IP</div><div><b>WasteSense</b><span>IP schedule needs acknowledgement</span></div><div class="row-spacer"></div><span class="status risk">Action</span></div>
+                <div class="list-row"><div class="list-icon">✓</div><div><b>Clinic Queue AI</b><span>Independent validation completed</span></div><div class="row-spacer"></div><span class="status completed">Ready</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2 equal" style="margin-top:16px">
+            <div class="panel"><div class="panel-head"><div><h3>Recent challenges</h3><p>Public problem statements with defined outcomes</p></div><button class="btn btn-secondary small" onclick="go('challenges')">View all</button></div><div class="table-wrap"><table><thead><tr><th>Challenge</th><th>Department</th><th>Stage</th><th>Applications</th></tr></thead><tbody>
+              <tr><td>Predictive maintenance for municipal pumps</td><td>Urban Water Mission</td><td><span class="status open">Open</span></td><td>18</td></tr>
+              <tr><td>AI-assisted citizen grievance routing</td><td>District Administration</td><td><span class="status review">Evaluation</span></td><td>24</td></tr>
+              <tr><td>Low-cost waste segregation monitoring</td><td>Municipal Solid Waste Cell</td><td><span class="status live">Pilot</span></td><td>11</td></tr>
+              <tr><td>Emergency inventory visibility for clinics</td><td>Public Health Mission</td><td><span class="status completed">Validated</span></td><td>9</td></tr>
+            </tbody></table></div></div>
+            <div class="panel"><div class="panel-head"><div><h3>Activity & audit trail</h3><p>Every material action is timestamped</p></div><button class="btn btn-secondary small" onclick="go('audit')">Audit log</button></div><div class="panel-body"><div class="timeline">
+              <div class="timeline-item done"><div class="timeline-dot"></div><div><b>Independent validation signed</b><p>Clinic Queue AI · 30 Sep 2026 · 14:42</p></div></div>
+              <div class="timeline-item done"><div class="timeline-dot"></div><div><b>Milestone M2 approved</b><p>Water Leak Pilot · 30 Sep 2026 · 12:18</p></div></div>
+              <div class="timeline-item"><div class="timeline-dot"></div><div><b>Evaluation rubric updated</b><p>Mobility Data Challenge · 30 Sep 2026 · 10:05</p></div></div>
+              <div class="timeline-item"><div class="timeline-dot"></div><div><b>Startup submitted pilot evidence</b><p>WasteSense · 29 Sep 2026 · 18:26</p></div></div>
+            </div></div></div>
+          </div>
+
+          <div class="footer"><span>GovBridge concept platform · Designed for transparent innovation procurement workflows.</span><span>Security • Auditability • Interoperability • Accessibility</span></div>
+        </section>
+
+        <!-- CHALLENGES -->
+        <section class="page" id="page-challenges">
+          <div class="page-head"><div><div class="eyebrow">Challenge marketplace</div><h1>Open public problems</h1><p class="subtitle">Outcome-led challenges with clear eligibility, evaluation criteria, pilot terms and submission deadlines.</p></div><div class="page-actions"><button class="btn btn-secondary" onclick="openModal('templateModal')">Download templates</button><button class="btn btn-primary" id="newChallengeBtn2">＋ Create challenge</button></div></div>
+          <div class="filter-bar"><input id="challengeSearch" placeholder="Search by problem, outcome or department..." /><select id="deptFilter"><option value="all">All departments</option><option>Urban Water Mission</option><option>District Administration</option><option>Municipal Solid Waste Cell</option><option>Public Health Mission</option></select><select id="stageFilter"><option value="all">All stages</option><option>Open</option><option>Evaluation</option><option>Pilot</option><option>Validated</option></select><button class="btn btn-secondary" id="resetFilters">Reset</button></div>
+          <div class="challenge-grid" id="challengeGrid"></div>
+        </section>
+
+        <!-- STARTUPS -->
+        <section class="page" id="page-startups">
+          <div class="page-head"><div><div class="eyebrow">Startup discovery</div><h1>Qualified innovation pool</h1><p class="subtitle">Search structured startup profiles, solution capabilities, eligibility signals, previous pilot evidence and application fit.</p></div><div class="page-actions"><button class="btn btn-secondary" onclick="showToast('Startup data export prepared')">Export shortlist</button></div></div>
+          <div class="metrics"><div class="metric"><div class="metric-label">Startups discoverable</div><div class="metric-value">486</div><div class="metric-foot"><span class="up">+34</span> this quarter</div></div><div class="metric"><div class="metric-label">Eligibility verified</div><div class="metric-value">81%</div><div class="metric-foot">based on current documents</div></div><div class="metric"><div class="metric-label">Pilot-ready</div><div class="metric-value">126</div><div class="metric-foot">with relevant evidence</div></div><div class="metric"><div class="metric-label">Average response time</div><div class="metric-value">2.4d</div><div class="metric-foot">for challenge questions</div></div></div>
+          <div class="panel"><div class="panel-head"><div><h3>Discovery directory</h3><p>Structured profiles to support transparent shortlisting</p></div><div class="filter-bar" style="margin:0; width:390px"><input id="startupSearch" placeholder="Search startup, capability..." /><select id="startupSector"><option value="all">All sectors</option><option>Water</option><option>Mobility</option><option>Health</option><option>Waste</option></select></div></div><div class="table-wrap"><table id="startupTable"><thead><tr><th>Startup</th><th>Capability</th><th>Relevant pilots</th><th>Eligibility</th><th>Fit</th><th>Action</th></tr></thead><tbody>
+            <tr><td>AquaPulse Systems</td><td>IoT • water networks</td><td>4</td><td><span class="status approved">Verified</span></td><td>92%</td><td><button class="btn btn-secondary small" onclick="openStartup('AquaPulse Systems')">View profile</button></td></tr>
+            <tr><td>CivicRoute Labs</td><td>AI • citizen services</td><td>3</td><td><span class="status approved">Verified</span></td><td>89%</td><td><button class="btn btn-secondary small" onclick="openStartup('CivicRoute Labs')">View profile</button></td></tr>
+            <tr><td>GreenLoop Analytics</td><td>Computer vision • waste</td><td>5</td><td><span class="status approved">Verified</span></td><td>94%</td><td><button class="btn btn-secondary small" onclick="openStartup('GreenLoop Analytics')">View profile</button></td></tr>
+            <tr><td>HealthGrid AI</td><td>AI • clinic operations</td><td>2</td><td><span class="status review">Review</span></td><td>84%</td><td><button class="btn btn-secondary small" onclick="openStartup('HealthGrid AI')">View profile</button></td></tr>
+            <tr><td>MetroSense</td><td>Mobility analytics</td><td>6</td><td><span class="status approved">Verified</span></td><td>91%</td><td><button class="btn btn-secondary small" onclick="openStartup('MetroSense')">View profile</button></td></tr>
+          </tbody></table></div></div>
+        </section>
+
+        <!-- EVALUATIONS -->
+        <section class="page" id="page-evaluations">
+          <div class="page-head"><div><div class="eyebrow">Expert evaluation</div><h1>Evidence-based shortlisting</h1><p class="subtitle">Standard rubrics make technical, impact, implementation, security and value-for-money assessments comparable and auditable.</p></div><button class="btn btn-primary" onclick="openModal('rubricModal')">+ New rubric</button></div>
+          <div class="grid-2 equal"><div class="panel"><div class="panel-head"><div><h3>Evaluation queue</h3><p>Assigned submissions</p></div><span class="status review">8 pending</span></div><div class="table-wrap"><table><thead><tr><th>Challenge</th><th>Startup</th><th>Assigned</th><th>Progress</th><th></th></tr></thead><tbody>
+            <tr><td>AI grievance routing</td><td>CivicRoute Labs</td><td>3 experts</td><td>2 / 3</td><td><button class="btn btn-primary small" onclick="openModal('evalModal')">Evaluate</button></td></tr>
+            <tr><td>Mobility data platform</td><td>MetroSense</td><td>4 experts</td><td>1 / 4</td><td><button class="btn btn-primary small" onclick="openModal('evalModal')">Evaluate</button></td></tr>
+            <tr><td>Clinic inventory visibility</td><td>HealthGrid AI</td><td>3 experts</td><td>3 / 3</td><td><button class="btn btn-secondary small" onclick="showToast('Final evaluation packet opened')">Open</button></td></tr>
+            <tr><td>Waste monitoring</td><td>GreenLoop Analytics</td><td>4 experts</td><td>4 / 4</td><td><button class="btn btn-secondary small" onclick="showToast('Evaluation record opened')">Open</button></td></tr>
+          </tbody></table></div></div>
+          <div class="panel"><div class="panel-head"><div><h3>Scoring framework</h3><p>Configurable weighted criteria</p></div></div><div class="panel-body"><div class="progress-list">
+            <div class="progress-item"><div class="step-num">01</div><div class="progress-copy"><b>Problem fit & outcomes</b><span>Does the solution address the measurable need?</span><div class="bar"><i style="--w:30%"></i></div></div><div class="percent">30%</div></div>
+            <div class="progress-item"><div class="step-num">02</div><div class="progress-copy"><b>Technical feasibility</b><span>Architecture, maturity and implementation readiness.</span><div class="bar"><i style="--w:20%"></i></div></div><div class="percent">20%</div></div>
+            <div class="progress-item"><div class="step-num">03</div><div class="progress-copy"><b>Impact & scalability</b><span>Potential to improve service quality and replicate.</span><div class="bar"><i style="--w:20%"></i></div></div><div class="percent">20%</div></div>
+            <div class="progress-item"><div class="step-num">04</div><div class="progress-copy"><b>Security, privacy & risk</b><span>Data, cybersecurity and continuity safeguards.</span><div class="bar"><i style="--w:15%"></i></div></div><div class="percent">15%</div></div>
+            <div class="progress-item"><div class="step-num">05</div><div class="progress-copy"><b>Commercial viability</b><span>Cost model and evidence for sustainable adoption.</span><div class="bar"><i style="--w:15%"></i></div></div><div class="percent">15%</div></div>
+          </div><div class="notice" style="margin-top:14px"><strong>Control:</strong> scoring changes are versioned and existing evaluations retain the rubric version used at submission time.</div></div></div></div>
+        </section>
+
+        <!-- PILOTS -->
+        <section class="page" id="page-pilots">
+          <div class="page-head"><div><div class="eyebrow">Controlled pilots</div><h1>Pilots & milestones</h1><p class="subtitle">Define a bounded test, track milestones, collect evidence, approve outcomes and trigger payments only against verified deliverables.</p></div><button class="btn btn-primary" onclick="openModal('pilotModal')">＋ Start pilot</button></div>
+          <div class="grid-3"><div class="mini-kpi" style="background:#fff"><span>Running pilots</span><b>9</b></div><div class="mini-kpi" style="background:#fff"><span>Milestones due this week</span><b>7</b></div><div class="mini-kpi" style="background:#fff"><span>Validation-ready</span><b>4</b></div></div>
+          <div class="panel" style="margin-top:15px"><div class="panel-head"><div><h3>Active pilot register</h3><p>Current delivery status and evidence signals</p></div><select style="width:150px;border:1px solid var(--line);border-radius:8px;padding:7px;font-size:10px"><option>All departments</option><option>Urban Water Mission</option><option>Public Health Mission</option></select></div><div class="table-wrap"><table><thead><tr><th>Pilot</th><th>Startup</th><th>Period</th><th>Progress</th><th>Next milestone</th><th>Risk</th><th></th></tr></thead><tbody>
+            <tr><td>Smart Pump Sentinel</td><td>AquaPulse Systems</td><td>02 Aug – 28 Oct</td><td>68%</td><td>Sensor reliability</td><td><span class="status approved">Low</span></td><td><button class="btn btn-secondary small" onclick="openModal('pilotDetailModal')">Open</button></td></tr>
+            <tr><td>WasteVision Ward Pilot</td><td>GreenLoop Analytics</td><td>18 Aug – 18 Nov</td><td>54%</td><td>Coverage target</td><td><span class="status review">Medium</span></td><td><button class="btn btn-secondary small" onclick="openModal('pilotDetailModal')">Open</button></td></tr>
+            <tr><td>QueueAssist Clinics</td><td>HealthGrid AI</td><td>01 Sep – 30 Sep</td><td>100%</td><td>Validation pack</td><td><span class="status approved">Low</span></td><td><button class="btn btn-secondary small" onclick="openModal('pilotDetailModal')">Open</button></td></tr>
+          </tbody></table></div></div>
+        </section>
+
+        <!-- PAYMENTS -->
+        <section class="page" id="page-payments">
+          <div class="page-head"><div><div class="eyebrow">Milestone payments</div><h1>Payment control centre</h1><p class="subtitle">A clear chain from deliverable → verification → approval → payment status, with evidence attached at every stage.</p></div><button class="btn btn-primary" onclick="showToast('Payment batch queued for approval')">Process approved batch</button></div>
+          <div class="metrics"><div class="metric"><div class="metric-label">Released</div><div class="metric-value">₹74.2L</div><div class="metric-foot"><span class="up">38 milestones</span> completed</div></div><div class="metric"><div class="metric-label">Pending verification</div><div class="metric-value">₹18.6L</div><div class="metric-foot">11 milestone records</div></div><div class="metric"><div class="metric-label">Average release time</div><div class="metric-value">4.1d</div><div class="metric-foot"><span class="up">↓ 22%</span> this quarter</div></div><div class="metric"><div class="metric-label">Exceptions</div><div class="metric-value">2</div><div class="metric-foot"><span class="warn">Needs review</span></div></div></div>
+          <div class="panel"><div class="panel-head"><div><h3>Milestone register</h3><p>Traceable payment readiness</p></div><div class="pill-tabs"><button class="active">All</button><button>Pending</button><button>Released</button></div></div><div class="table-wrap"><table><thead><tr><th>Milestone</th><th>Pilot</th><th>Amount</th><th>Evidence</th><th>Verification</th><th>Status</th><th></th></tr></thead><tbody>
+            <tr><td>M2 · Field validation</td><td>Smart Pump Sentinel</td><td>₹6.0L</td><td>8 files</td><td>Department approved</td><td><span class="status pending">Ready to pay</span></td><td><button class="btn btn-primary small" onclick="showToast('Payment instruction opened')">Open</button></td></tr>
+            <tr><td>M3 · KPI report</td><td>WasteVision Ward Pilot</td><td>₹4.5L</td><td>12 files</td><td>Independent review</td><td><span class="status review">In review</span></td><td><button class="btn btn-secondary small" onclick="showToast('Verification packet opened')">Open</button></td></tr>
+            <tr><td>M3 · Closure & validation</td><td>QueueAssist Clinics</td><td>₹8.1L</td><td>21 files</td><td>Signed validation</td><td><span class="status completed">Released</span></td><td><button class="btn btn-secondary small" onclick="showToast('Payment receipt opened')">Receipt</button></td></tr>
+          </tbody></table></div></div>
+        </section>
+
+        <!-- COMPLIANCE -->
+        <section class="page" id="page-compliance">
+          <div class="page-head"><div><div class="eyebrow">Governance by design</div><h1>Compliance centre</h1><p class="subtitle">Standard controls for eligibility, contracts, data handling, cybersecurity, risk, audit evidence and procurement handover.</p></div><button class="btn btn-primary" onclick="openModal('clauseModal')">＋ Add clause set</button></div>
+          <div class="grid-2">
+            <div class="panel"><div class="panel-head"><div><h3>Control checklist</h3><p>Programme-level readiness</p></div><span class="status approved">92% complete</span></div><div class="panel-body"><div class="compliance-grid">
+              <div class="check good"><div class="check-mark">✓</div><div><b>Startup eligibility</b><span>Documents and declaration captured.</span></div></div>
+              <div class="check good"><div class="check-mark">✓</div><div><b>Conflict of interest</b><span>Expert declaration recorded before scoring.</span></div></div>
+              <div class="check good"><div class="check-mark">✓</div><div><b>Data & IP schedule</b><span>Purpose, access, ownership and exit terms attached.</span></div></div>
+              <div class="check good"><div class="check-mark">✓</div><div><b>Cybersecurity baseline</b><span>Security checklist and incident path acknowledged.</span></div></div>
+              <div class="check good"><div class="check-mark">✓</div><div><b>Pilot risk register</b><span>Owner, mitigation and escalation route defined.</span></div></div>
+              <div class="check warn"><div class="check-mark">!</div><div><b>Independent validation</b><span>2 pilots need external validation appointment.</span></div></div>
+            </div></div></div>
+            <div class="panel"><div class="panel-head"><div><h3>Standard document library</h3><p>Reusable templates and clause sets</p></div></div><div class="panel-body stack">
+              <div class="list-row"><div class="list-icon">PS</div><div><b>Outcome-based problem statement</b><span>Version 2.1 · Approved template</span></div><div class="row-spacer"></div><button class="btn btn-secondary small" onclick="downloadTemplate('problem-statement')">Use</button></div>
+              <div class="list-row"><div class="list-icon">ER</div><div><b>Expert evaluation rubric</b><span>Weighted scoring · Version 1.4</span></div><div class="row-spacer"></div><button class="btn btn-secondary small" onclick="downloadTemplate('evaluation-rubric')">Use</button></div>
+              <div class="list-row"><div class="list-icon">PA</div><div><b>Pilot agreement pack</b><span>Milestones · KPIs · risk controls</span></div><div class="row-spacer"></div><button class="btn btn-secondary small" onclick="downloadTemplate('pilot-agreement')">Use</button></div>
+              <div class="list-row"><div class="list-icon">DI</div><div><b>Data & IP clause set</b><span>Ownership · access · exit</span></div><div class="row-spacer"></div><button class="btn btn-secondary small" onclick="downloadTemplate('data-ip')">Use</button></div>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- PROCUREMENT -->
+        <section class="page" id="page-procurement">
+          <div class="page-head"><div><div class="eyebrow">Scale-up decision path</div><h1>Procurement pathway</h1><p class="subtitle">Move validated evidence into the appropriate procurement or scale-up route while preserving the decision record.</p></div><button class="btn btn-primary" onclick="showToast('Scale-up decision pack created')">Create decision pack</button></div>
+          <div class="panel"><div class="panel-head"><div><h3>Decision workflow</h3><p>Example: QueueAssist Clinics</p></div><span class="status completed">Validation complete</span></div><div class="panel-body"><div class="progress-list">
+            <div class="progress-item"><div class="step-num">01</div><div class="progress-copy"><b>Need definition</b><span>Outcome and measurable baseline approved.</span><div class="bar"><i style="--w:100%"></i></div></div><div class="percent">Done</div></div>
+            <div class="progress-item"><div class="step-num">02</div><div class="progress-copy"><b>Competitive discovery</b><span>Eligible startups invited and evidence captured.</span><div class="bar"><i style="--w:100%"></i></div></div><div class="percent">Done</div></div>
+            <div class="progress-item"><div class="step-num">03</div><div class="progress-copy"><b>Controlled pilot</b><span>Defined KPIs, milestones, payment triggers and risk controls.</span><div class="bar"><i style="--w:100%"></i></div></div><div class="percent">Done</div></div>
+            <div class="progress-item"><div class="step-num">04</div><div class="progress-copy"><b>Independent validation</b><span>Results checked against baseline and acceptance criteria.</span><div class="bar"><i style="--w:100%"></i></div></div><div class="percent">Done</div></div>
+            <div class="progress-item"><div class="step-num">05</div><div class="progress-copy"><b>Procurement route selection</b><span>Decision owner records route, justification and approvals.</span><div class="bar"><i style="--w:74%"></i></div></div><div class="percent">74%</div></div>
+          </div><div class="notice" style="margin-top:16px"><strong>Decision record:</strong> the platform stores the evidence bundle and rationale; the actual procurement route remains subject to the applicable rules and approvals of the procuring organisation.</div></div></div>
+          <div class="grid-3" style="margin-top:16px"><div class="panel"><div class="panel-head"><h3>Direct scale-up</h3></div><div class="panel-body"><p style="font-size:10px;color:var(--muted);margin:0 0 10px">For validated solutions where the organisation has an applicable procurement route and approval basis.</p><button class="btn btn-secondary small" onclick="showToast('Scale-up pathway selected')">Select pathway</button></div></div><div class="panel"><div class="panel-head"><h3>Extended pilot</h3></div><div class="panel-body"><p style="font-size:10px;color:var(--muted);margin:0 0 10px">For solutions needing more evidence before a scale decision.</p><button class="btn btn-secondary small" onclick="showToast('Extended pilot pathway selected')">Select pathway</button></div></div><div class="panel"><div class="panel-head"><h3>Close & learn</h3></div><div class="panel-body"><p style="font-size:10px;color:var(--muted);margin:0 0 10px">Record learnings, reasons and reusable evidence even when a pilot does not scale.</p><button class="btn btn-secondary small" onclick="showToast('Close-out template opened')">Select pathway</button></div></div></div>
+        </section>
+
+        <!-- AUDIT -->
+        <section class="page" id="page-audit">
+          <div class="page-head"><div><div class="eyebrow">Traceability</div><h1>Audit & evidence</h1><p class="subtitle">A chronological evidence trail across challenges, applications, evaluation versions, pilot deliverables, approvals and payment actions.</p></div><button class="btn btn-secondary" onclick="showToast('Audit export generated')">Export audit log</button></div>
+          <div class="panel"><div class="panel-head"><div><h3>Event ledger</h3><p>Illustrative programme activity</p></div><select style="width:160px;border:1px solid var(--line);border-radius:8px;padding:7px;font-size:10px"><option>All event types</option><option>Evaluation</option><option>Pilot</option><option>Payment</option><option>Compliance</option></select></div><div class="table-wrap"><table><thead><tr><th>Timestamp</th><th>Event</th><th>Actor</th><th>Reference</th><th>Evidence</th><th>Integrity</th></tr></thead><tbody>
+            <tr><td>30 Sep 2026 · 14:42</td><td>Validation signed</td><td>Independent reviewer</td><td>VAL-042</td><td>21 files</td><td><span class="status approved">Recorded</span></td></tr>
+            <tr><td>30 Sep 2026 · 12:18</td><td>Milestone approved</td><td>Department Admin</td><td>PIL-018 / M2</td><td>8 files</td><td><span class="status approved">Recorded</span></td></tr>
+            <tr><td>30 Sep 2026 · 10:05</td><td>Rubric version updated</td><td>Programme Owner</td><td>RUB-014 v1.4</td><td>1 document</td><td><span class="status approved">Versioned</span></td></tr>
+            <tr><td>29 Sep 2026 · 18:26</td><td>Evidence submitted</td><td>GreenLoop Analytics</td><td>PIL-021 / M2</td><td>12 files</td><td><span class="status approved">Recorded</span></td></tr>
+            <tr><td>29 Sep 2026 · 16:03</td><td>Conflict declaration</td><td>Expert E-118</td><td>EVAL-087</td><td>1 declaration</td><td><span class="status approved">Recorded</span></td></tr>
+          </tbody></table></div></div>
+        </section>
+
+        <!-- REPORTS -->
+        <section class="page" id="page-reports">
+          <div class="page-head"><div><div class="eyebrow">Programme intelligence</div><h1>Reports & insights</h1><p class="subtitle">Turn challenge, pilot and payment data into decision-ready programme views.</p></div><button class="btn btn-primary" onclick="showToast('Quarterly report generated')">Generate report</button></div>
+          <div class="grid-3"><div class="panel"><div class="panel-head"><h3>Pipeline health</h3></div><div class="panel-body"><div class="ring-wrap"><div class="score-ring"></div><div class="ring-label">76%<span>healthy pipeline</span></div></div><p style="font-size:10px;color:var(--muted);margin:10px 0 0">Based on stage movement, pending reviews and milestone readiness.</p></div></div><div class="panel"><div class="panel-head"><h3>Evidence maturity</h3></div><div class="panel-body"><div class="progress-list"><div class="progress-item"><div class="step-num">A</div><div class="progress-copy"><b>Baseline captured</b><div class="bar"><i style="--w:91%"></i></div></div><div class="percent">91%</div></div><div class="progress-item"><div class="step-num">B</div><div class="progress-copy"><b>KPI evidence</b><div class="bar"><i style="--w:79%"></i></div></div><div class="percent">79%</div></div><div class="progress-item"><div class="step-num">C</div><div class="progress-copy"><b>Validation complete</b><div class="bar"><i style="--w:67%"></i></div></div><div class="percent">67%</div></div></div></div></div><div class="panel"><div class="panel-head"><h3>Report catalogue</h3></div><div class="panel-body stack"><div class="list-row"><div class="list-icon">Q1</div><div><b>Quarterly innovation pipeline</b><span>Challenges, startups, pilots</span></div><div class="row-spacer"></div><button class="btn btn-secondary small" onclick="showToast('Report opened')">Open</button></div><div class="list-row"><div class="list-icon">₹</div><div><b>Milestone payment report</b><span>Verified vs released</span></div><div class="row-spacer"></div><button class="btn btn-secondary small" onclick="showToast('Payment report opened')">Open</button></div><div class="list-row"><div class="list-icon">KP</div><div><b>Pilot KPI comparison</b><span>Baseline vs observed results</span></div><div class="row-spacer"></div><button class="btn btn-secondary small" onclick="showToast('KPI report opened')">Open</button></div></div></div></div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section class="page" id="page-settings">
+          <div class="page-head"><div><div class="eyebrow">Workspace controls</div><h1>Settings</h1><p class="subtitle">Configure programme defaults, notifications and workflow preferences.</p></div><button class="btn btn-primary" onclick="showToast('Settings saved')">Save changes</button></div>
+          <div class="grid-2 equal"><div class="panel"><div class="panel-head"><h3>Programme defaults</h3></div><div class="panel-body"><div class="field"><label>Default challenge duration</label><select><option>30 days</option><option selected>45 days</option><option>60 days</option></select></div><div class="field"><label>Default evaluation window</label><select><option>5 working days</option><option selected>7 working days</option><option>10 working days</option></select></div><div class="field"><label>Evidence retention rule</label><select><option selected>Programme policy</option><option>Project-specific</option></select></div></div></div><div class="panel"><div class="panel-head"><h3>Notifications</h3></div><div class="panel-body"><div class="list-row"><div><b>Milestone due</b><span>Notify owner 3 days before due date.</span></div><div class="row-spacer"></div><button class="btn btn-secondary small" onclick="toggleSetting(this)">On</button></div><div class="list-row"><div><b>Evaluation reminder</b><span>Send reminder after 48 hours of inactivity.</span></div><div class="row-spacer"></div><button class="btn btn-secondary small" onclick="toggleSetting(this)">On</button></div><div class="list-row"><div><b>Payment exception</b><span>Notify programme owner immediately.</span></div><div class="row-spacer"></div><button class="btn btn-secondary small" onclick="toggleSetting(this)">On</button></div></div></div></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- NEW CHALLENGE MODAL -->
+  <div class="modal-backdrop" id="challengeModal"><div class="modal"><div class="modal-head"><div><h3>Create an outcome-based challenge</h3><p style="margin:3px 0 0;color:var(--muted);font-size:9px">Convert a public need into a fair, testable innovation brief.</p></div><button class="modal-close" data-close="challengeModal">✕</button></div><div class="modal-body"><div class="field-row"><div class="field"><label>Challenge title</label><input id="newTitle" placeholder="e.g. Predictive maintenance for streetlights" /></div><div class="field"><label>Department</label><select id="newDept"><option>Urban Water Mission</option><option>District Administration</option><option>Public Health Mission</option><option>Municipal Solid Waste Cell</option></select></div></div><div class="field"><label>Problem statement</label><textarea id="newProblem" placeholder="Describe the public need, current gap and affected users."></textarea></div><div class="field"><label>Desired measurable outcome</label><textarea id="newOutcome" placeholder="What should be measurably better after the pilot?"></textarea></div><div class="field-row"><div class="field"><label>Application deadline</label><input type="date" value="2026-10-30" /></div><div class="field"><label>Pilot duration</label><select><option>30 days</option><option selected>60 days</option><option>90 days</option></select></div></div><div class="notice"><strong>Built-in controls:</strong> evaluation rubric, startup eligibility, pilot KPIs, data/IP clauses, cybersecurity checklist and milestone payment schedule can be attached before publishing.</div></div><div class="modal-foot"><button class="btn btn-secondary" data-close="challengeModal">Cancel</button><button class="btn btn-primary" id="publishChallenge">Publish challenge</button></div></div></div>
+
+  <!-- CHALLENGE DETAIL -->
+  <div class="modal-backdrop" id="challengeDetailModal"><div class="modal"><div class="modal-head"><div><h3 id="detailTitle">Challenge detail</h3><p id="detailDept" style="margin:3px 0 0;color:var(--muted);font-size:9px"></p></div><button class="modal-close" data-close="challengeDetailModal">✕</button></div><div class="modal-body"><div class="tag-row" id="detailTags"></div><p id="detailDescription" style="font-size:11px;color:#506078;line-height:1.65"></p><div class="grid-3" style="margin:14px 0"><div class="mini-kpi"><span>Applications</span><b id="detailApps">18</b></div><div class="mini-kpi"><span>Pilot budget</span><b id="detailBudget">₹12L</b></div><div class="mini-kpi"><span>Deadline</span><b id="detailDeadline">30 Oct</b></div></div><div class="notice"><strong>Evaluation:</strong> outcome fit 30% · technical feasibility 20% · impact 20% · security & risk 15% · commercial viability 15%.</div></div><div class="modal-foot"><button class="btn btn-secondary" data-close="challengeDetailModal">Close</button><button class="btn btn-primary" id="applyChallengeBtn">Apply / nominate startup</button></div></div></div>
+
+  <!-- SUPPORT MODAL -->
+  <div class="modal-backdrop" id="supportModal"><div class="modal"><div class="modal-head"><h3>Procurement help centre</h3><button class="modal-close" data-close="supportModal">✕</button></div><div class="modal-body"><div class="grid-2 equal"><div class="mini-kpi"><span>Template desk</span><b>12 guides</b></div><div class="mini-kpi"><span>Response target</span><b>&lt; 1 day</b></div></div><div style="margin-top:13px" class="stack"><div class="notice"><strong>Challenge drafting:</strong> start with outcomes, baseline, affected users, constraints and a measurable pilot hypothesis.</div><div class="notice"><strong>Startup support:</strong> use the discovery directory to find relevant challenges and verify eligibility before application.</div><div class="notice"><strong>Pilot support:</strong> define evidence, milestone acceptance criteria and payment triggers before contract approval.</div></div></div><div class="modal-foot"><button class="btn btn-primary" data-close="supportModal">Close</button></div></div></div>
+
+  <!-- TEMPLATE MODAL -->
+  <div class="modal-backdrop" id="templateModal"><div class="modal"><div class="modal-head"><div><h3>Template library</h3><p style="margin:3px 0 0;color:var(--muted);font-size:9px">Reusable workflow documents.</p></div><button class="modal-close" data-close="templateModal">✕</button></div><div class="modal-body stack"><div class="list-row"><div class="list-icon">01</div><div><b>Outcome-based challenge template</b><span>Need · baseline · constraints · outcomes</span></div><div class="row-spacer"></div><button class="btn btn-primary small" onclick="downloadTemplate('challenge')">Use template</button></div><div class="list-row"><div class="list-icon">02</div><div><b>Evaluation rubric</b><span>Weighted scoring and conflict controls</span></div><div class="row-spacer"></div><button class="btn btn-primary small" onclick="downloadTemplate('rubric')">Use template</button></div><div class="list-row"><div class="list-icon">03</div><div><b>Pilot agreement</b><span>Milestones · evidence · IP · data · risk</span></div><div class="row-spacer"></div><button class="btn btn-primary small" onclick="downloadTemplate('pilot')">Use template</button></div></div><div class="modal-foot"><button class="btn btn-secondary" data-close="templateModal">Close</button></div></div></div>
+
+  <!-- EVALUATION MODAL -->
+  <div class="modal-backdrop" id="evalModal"><div class="modal"><div class="modal-head"><div><h3>Submit expert evaluation</h3><p style="margin:3px 0 0;color:var(--muted);font-size:9px">Scores are versioned against the active rubric.</p></div><button class="modal-close" data-close="evalModal">✕</button></div><div class="modal-body"><div class="field"><label>Submission</label><select><option>CivicRoute Labs · AI grievance routing</option><option>MetroSense · Mobility data platform</option></select></div><div class="field-row"><div class="field"><label>Outcome fit · /10</label><input id="score1" type="number" min="0" max="10" value="8" /></div><div class="field"><label>Technical feasibility · /10</label><input id="score2" type="number" min="0" max="10" value="8" /></div></div><div class="field-row"><div class="field"><label>Impact & scale · /10</label><input id="score3" type="number" min="0" max="10" value="7" /></div><div class="field"><label>Security & risk · /10</label><input id="score4" type="number" min="0" max="10" value="8" /></div></div><div class="field"><label>Commercial viability · /10</label><input id="score5" type="number" min="0" max="10" value="7" /></div><div class="field"><label>Evidence notes</label><textarea placeholder="Record evidence, assumptions and any conditions for pilot approval."></textarea></div></div><div class="modal-foot"><button class="btn btn-secondary" data-close="evalModal">Cancel</button><button class="btn btn-primary" id="submitEvaluation">Save evaluation</button></div></div></div>
+
+  <!-- STARTUP MODAL -->
+  <div class="modal-backdrop" id="startupModal"><div class="modal"><div class="modal-head"><div><h3 id="startupName">Startup profile</h3><p id="startupSubtitle" style="margin:3px 0 0;color:var(--muted);font-size:9px"></p></div><button class="modal-close" data-close="startupModal">✕</button></div><div class="modal-body"><div class="grid-3"><div class="mini-kpi"><span>Eligibility</span><b>Verified</b></div><div class="mini-kpi"><span>Relevant pilots</span><b id="startupPilots">4</b></div><div class="mini-kpi"><span>Application fit</span><b id="startupFit">92%</b></div></div><div class="panel" style="margin-top:13px;box-shadow:none"><div class="panel-head"><h3>Evidence signals</h3></div><div class="panel-body"><div class="progress-list"><div class="progress-item"><div class="step-num">01</div><div class="progress-copy"><b>Problem relevance</b><div class="bar"><i style="--w:94%"></i></div></div><div class="percent">94%</div></div><div class="progress-item"><div class="step-num">02</div><div class="progress-copy"><b>Technical readiness</b><div class="bar"><i style="--w:87%"></i></div></div><div class="percent">87%</div></div><div class="progress-item"><div class="step-num">03</div><div class="progress-copy"><b>Pilot evidence</b><div class="bar"><i style="--w:91%"></i></div></div><div class="percent">91%</div></div></div></div></div></div><div class="modal-foot"><button class="btn btn-secondary" data-close="startupModal">Close</button><button class="btn btn-primary" onclick="showToast('Startup added to shortlist')">Add to shortlist</button></div></div></div>
+
+  <!-- PILOT MODAL -->
+  <div class="modal-backdrop" id="pilotModal"><div class="modal"><div class="modal-head"><div><h3>Start a controlled pilot</h3><p style="margin:3px 0 0;color:var(--muted);font-size:9px">Define scope, KPIs, milestones and risk controls.</p></div><button class="modal-close" data-close="pilotModal">✕</button></div><div class="modal-body"><div class="field-row"><div class="field"><label>Pilot name</label><input placeholder="e.g. Ward-level waste monitoring" /></div><div class="field"><label>Startup</label><select><option>GreenLoop Analytics</option><option>AquaPulse Systems</option><option>HealthGrid AI</option></select></div></div><div class="field"><label>Primary KPI</label><input placeholder="e.g. 90% detection accuracy across 3 pilot wards" /></div><div class="field-row"><div class="field"><label>Start date</label><input type="date" value="2026-10-05" /></div><div class="field"><label>End date</label><input type="date" value="2026-12-05" /></div></div><div class="field"><label>Milestones</label><textarea placeholder="M1 — setup and baseline&#10;M2 — field validation&#10;M3 — KPI report&#10;M4 — independent validation"></textarea></div><div class="notice"><strong>Required before approval:</strong> acceptance criteria, evidence format, payment trigger, data access, IP treatment, cybersecurity controls and risk owner.</div></div><div class="modal-foot"><button class="btn btn-secondary" data-close="pilotModal">Cancel</button><button class="btn btn-primary" id="startPilotBtn">Create pilot</button></div></div></div>
+
+  <!-- PILOT DETAIL -->
+  <div class="modal-backdrop" id="pilotDetailModal"><div class="modal"><div class="modal-head"><div><h3>Smart Pump Sentinel</h3><p style="margin:3px 0 0;color:var(--muted);font-size:9px">AquaPulse Systems · PIL-018</p></div><button class="modal-close" data-close="pilotDetailModal">✕</button></div><div class="modal-body"><div class="grid-3"><div class="mini-kpi"><span>Progress</span><b>68%</b></div><div class="mini-kpi"><span>Evidence files</span><b>18</b></div><div class="mini-kpi"><span>Next trigger</span><b>M2</b></div></div><div class="panel" style="margin-top:13px;box-shadow:none"><div class="panel-head"><h3>Milestone chain</h3></div><div class="panel-body"><div class="timeline"><div class="timeline-item done"><div class="timeline-dot"></div><div><b>M1 · Baseline captured</b><p>Approved · 02 Aug 2026</p></div></div><div class="timeline-item done"><div class="timeline-dot"></div><div><b>Field installation</b><p>Completed · 22 Aug 2026</p></div></div><div class="timeline-item"><div class="timeline-dot"></div><div><b>M2 · Sensor reliability</b><p>Evidence uploaded · department review pending</p></div></div><div class="timeline-item"><div class="timeline-dot"></div><div><b>M3 · KPI & validation pack</b><p>Scheduled · 28 Oct 2026</p></div></div></div></div></div></div><div class="modal-foot"><button class="btn btn-secondary" data-close="pilotDetailModal">Close</button><button class="btn btn-primary" onclick="showToast('Evidence review opened')">Review evidence</button></div></div></div>
+
+  <!-- RUBRIC / CLAUSE MODALS -->
+  <div class="modal-backdrop" id="rubricModal"><div class="modal"><div class="modal-head"><h3>Create evaluation rubric</h3><button class="modal-close" data-close="rubricModal">✕</button></div><div class="modal-body"><div class="field"><label>Rubric name</label><input placeholder="Innovation pilot evaluation v2" /></div><div class="field"><label>Criteria</label><textarea>Problem fit — 30%&#10;Technical feasibility — 20%&#10;Impact & scalability — 20%&#10;Security & risk — 15%&#10;Commercial viability — 15%</textarea></div><div class="notice"><strong>Governance control:</strong> publishing a new version does not retroactively change completed assessments.</div></div><div class="modal-foot"><button class="btn btn-secondary" data-close="rubricModal">Cancel</button><button class="btn btn-primary" onclick="showToast('Rubric v1.5 saved');closeModal('rubricModal')">Save rubric</button></div></div></div>
+
+  <div class="modal-backdrop" id="clauseModal"><div class="modal"><div class="modal-head"><h3>Create clause set</h3><button class="modal-close" data-close="clauseModal">✕</button></div><div class="modal-body"><div class="field"><label>Clause set name</label><input placeholder="Pilot data, IP & cybersecurity baseline" /></div><div class="field-row"><div class="field"><label>Data</label><select><option>Purpose-limited access</option><option>Department-owned data</option></select></div><div class="field"><label>IP</label><select><option>Defined by agreement</option><option>Startup-owned foreground IP</option></select></div></div><div class="field"><label>Notes</label><textarea placeholder="Add organisation-specific clauses and approval notes."></textarea></div></div><div class="modal-foot"><button class="btn btn-secondary" data-close="clauseModal">Cancel</button><button class="btn btn-primary" onclick="showToast('Clause set saved');closeModal('clauseModal')">Save clause set</button></div></div></div>
+
+  <div class="toast" id="toast"><span class="toast-dot"></span><span id="toastText">Done</span></div>
+
+  <script>
+    const challenges = [
+      { id:1, title:'Predictive maintenance for municipal pumps', dept:'Urban Water Mission', stage:'Open', apps:18, budget:'₹12L', deadline:'30 Oct 2026', tags:['Water','IoT','Predictive AI'], desc:'Reduce unplanned pump downtime by detecting abnormal operating patterns early across a defined set of municipal pumping stations.' },
+      { id:2, title:'AI-assisted citizen grievance routing', dept:'District Administration', stage:'Evaluation', apps:24, budget:'₹15L', deadline:'Closed · 18 Sep', tags:['AI','Citizen Services','NLP'], desc:'Route incoming citizen grievances to the correct department and priority queue while retaining human review and an auditable routing trail.' },
+      { id:3, title:'Low-cost waste segregation monitoring', dept:'Municipal Solid Waste Cell', stage:'Pilot', apps:11, budget:'₹10L', deadline:'Pilot active', tags:['Waste','Computer Vision','IoT'], desc:'Improve segregation compliance visibility through low-cost monitoring across selected wards, with measurable coverage and accuracy targets.' },
+      { id:4, title:'Emergency inventory visibility for clinics', dept:'Public Health Mission', stage:'Validated', apps:9, budget:'₹8L', deadline:'Validated · 26 Sep', tags:['Health','Inventory','Analytics'], desc:'Give participating clinics a near-real-time view of critical inventory and identify stock-out risk earlier using lightweight digital workflows.' },
+      { id:5, title:'Adaptive traffic signal priority for ambulances', dept:'District Administration', stage:'Open', apps:16, budget:'₹18L', deadline:'08 Nov 2026', tags:['Mobility','Sensors','Public Safety'], desc:'Test a bounded solution for reducing ambulance delay at selected intersections using measurable travel-time and safety indicators.' },
+      { id:6, title:'Energy anomaly detection in public buildings', dept:'Urban Water Mission', stage:'Open', apps:13, budget:'₹9L', deadline:'12 Nov 2026', tags:['Energy','Analytics','IoT'], desc:'Detect avoidable energy anomalies in public buildings and validate savings against a clearly defined baseline.' },
+      { id:7, title:'Accessible multilingual service kiosk', dept:'District Administration', stage:'Evaluation', apps:20, budget:'₹11L', deadline:'Closed · 25 Sep', tags:['Accessibility','Multilingual','Digital'], desc:'Improve access to selected citizen services through assisted multilingual interaction and measurable completion-rate targets.' },
+      { id:8, title:'Clinic queue forecasting', dept:'Public Health Mission', stage:'Validated', apps:7, budget:'₹7L', deadline:'Validated · 22 Sep', tags:['Health','Forecasting','Operations'], desc:'Forecast clinic demand and help staff plan resources while measuring wait-time and service-level changes.' },
+      { id:9, title:'Ward-level water quality alerts', dept:'Urban Water Mission', stage:'Pilot', apps:14, budget:'₹13L', deadline:'Pilot active', tags:['Water','Sensors','Alerts'], desc:'Deliver actionable alerts from water-quality observations while tracking false positives, response time and field verification.' }
+    ];
+
+    const roleConfig = {
+      department: {
+        title:'A transparent path from public need to proven innovation.',
+        subtitle:'Identify outcome-based problems, discover qualified startups, run controlled pilots, and move evidence into compliant procurement decisions.',
+        heading:'Viewing as Department', heroTitle:'12 challenges are currently moving through the innovation pipeline.', heroText:'Standard templates, evidence trails and milestone controls keep experimentation fast without losing procurement discipline.'
+      },
+      startup: {
+        title:'Find the right public problem—and show what your solution can prove.',
+        subtitle:'Discover challenges, review objective criteria, submit evidence, track pilot milestones and keep visibility on payment readiness.',
+        heading:'Viewing as Startup', heroTitle:'86 startups are currently discoverable across 12 active challenges.', heroText:'Structured briefs make it easier to assess fit before investing time in an application, while milestone visibility makes pilots predictable.'
+      },
+      evaluator: {
+        title:'Evaluate consistently. Leave a clean evidence trail.',
+        subtitle:'Use weighted criteria, declarations, evidence notes and versioned rubrics so each recommendation is explainable and reviewable.',
+        heading:'Viewing as Evaluator', heroTitle:'31 expert evaluators are assigned across the current challenge pipeline.', heroText:'Every score stays linked to the rubric version, evidence notes and conflict-of-interest declaration used at the time of assessment.'
+      }
+    };
+
+    const pageNames = {
+      dashboard:'Dashboard', challenges:'Challenges', startups:'Startup Discovery', evaluations:'Evaluations', pilots:'Pilots & Milestones', payments:'Payments', compliance:'Compliance Centre', procurement:'Procurement Path', audit:'Audit & Evidence', reports:'Reports', settings:'Settings'
+    };
+
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
+
+    function go(page) {
+      $$('.page').forEach(p => p.classList.remove('active'));
+      const target = $('#page-' + page);
+      if (target) target.classList.add('active');
+      $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === page));
+      $('#crumb').textContent = pageNames[page] || 'Dashboard';
+      closeDrawer();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function openModal(id) { const el = document.getElementById(id); if (el) el.classList.add('open'); }
+    function closeModal(id) { const el = document.getElementById(id); if (el) el.classList.remove('open'); }
+    function closeDrawer() { $('#sidebar').classList.remove('open'); $('#drawerBackdrop').classList.remove('open'); }
+
+    let toastTimer;
+    function showToast(message) {
+      const toast = $('#toast'); $('#toastText').textContent = message; toast.classList.add('show');
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    function renderChallenges() {
+      const query = ($('#challengeSearch')?.value || '').trim().toLowerCase();
+      const dept = $('#deptFilter')?.value || 'all';
+      const stage = $('#stageFilter')?.value || 'all';
+      const filtered = challenges.filter(c => {
+        const hay = `${c.title} ${c.dept} ${c.tags.join(' ')} ${c.desc}`.toLowerCase();
+        return (!query || hay.includes(query)) && (dept === 'all' || c.dept === dept) && (stage === 'all' || c.stage === stage);
+      });
+      const grid = $('#challengeGrid');
+      if (!grid) return;
+      if (!filtered.length) { grid.innerHTML = '<div class="panel" style="grid-column:1/-1"><div class="empty">No challenges match these filters.</div></div>'; return; }
+      grid.innerHTML = filtered.map(c => `
+        <article class="challenge-card">
+          <div class="challenge-top"><div class="dept-logo">${initials(c.dept)}</div><span class="status ${stageClass(c.stage)}">${c.stage}</span></div>
+          <div class="tag-row">${c.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>
+          <h3>${escapeHtml(c.title)}</h3>
+          <p>${escapeHtml(c.desc)}</p>
+          <div class="challenge-meta"><span>Applications <b>${c.apps}</b></span><span>Pilot budget <b>${c.budget}</b></span><span>Deadline <b>${escapeHtml(c.deadline)}</b></span></div>
+          <div class="card-actions"><button class="btn btn-secondary small" onclick="viewChallenge(${c.id})">View brief</button><button class="btn btn-primary small" onclick="applyToChallenge(${c.id})">Apply</button></div>
+        </article>`).join('');
+    }
+
+    function initials(text) { return text.split(' ').map(s => s[0]).slice(0,2).join('').toUpperCase(); }
+    function stageClass(s) { return s === 'Open' ? 'open' : s === 'Evaluation' ? 'review' : s === 'Pilot' ? 'live' : 'completed'; }
+    function escapeHtml(value) { return String(value).replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch])); }
+
+    let selectedChallenge = null;
+    function viewChallenge(id) {
+      const c = challenges.find(x => x.id === id); if (!c) return;
+      selectedChallenge = c;
+      $('#detailTitle').textContent = c.title; $('#detailDept').textContent = c.dept + ' · ' + c.stage;
+      $('#detailTags').innerHTML = c.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
+      $('#detailDescription').textContent = c.desc;
+      $('#detailApps').textContent = c.apps; $('#detailBudget').textContent = c.budget; $('#detailDeadline').textContent = c.deadline;
+      openModal('challengeDetailModal');
+    }
+    function applyToChallenge(id) { viewChallenge(id); setTimeout(() => $('#applyChallengeBtn')?.focus(), 30); }
+
+    function openStartup(name) {
+      const data = {
+        'AquaPulse Systems':['Water systems & IoT','4','92%'], 'CivicRoute Labs':['AI & citizen services','3','89%'], 'GreenLoop Analytics':['Computer vision & waste','5','94%'], 'HealthGrid AI':['AI & clinic operations','2','84%'], 'MetroSense':['Mobility analytics','6','91%']
+      }[name] || ['Innovation technology','3','86%'];
+      $('#startupName').textContent = name; $('#startupSubtitle').textContent = data[0]; $('#startupPilots').textContent = data[1]; $('#startupFit').textContent = data[2]; openModal('startupModal');
+    }
+
+    function downloadTemplate(type) {
+      const content = `GovBridge template: ${type}\n\nThis front-end concept provides the structure for the corresponding workflow document.\nUse the fields and controls shown in the platform as the basis for an organisation-specific template.`;
+      const blob = new Blob([content], {type:'text/plain'}); const url = URL.createObjectURL(blob); const a = document.createElement('a');
+      a.href = url; a.download = `GovBridge-${type}-template.txt`; a.click(); URL.revokeObjectURL(url); showToast('Template downloaded');
+    }
+
+    function toggleSetting(btn) { btn.textContent = btn.textContent.trim() === 'On' ? 'Off' : 'On'; showToast('Notification setting updated'); }
+
+    // Navigation
+    $$('.nav-item[data-page]').forEach(item => item.addEventListener('click', () => go(item.dataset.page)));
+    $('#menuBtn').addEventListener('click', () => { $('#sidebar').classList.add('open'); $('#drawerBackdrop').classList.add('open'); });
+    $('#drawerBackdrop').addEventListener('click', closeDrawer);
+
+    // Modals
+    $$('[data-close]').forEach(btn => btn.addEventListener('click', () => closeModal(btn.dataset.close)));
+    $$('.modal-backdrop').forEach(backdrop => backdrop.addEventListener('click', e => { if (e.target === backdrop) backdrop.classList.remove('open'); }));
+    $('#helpBtn').addEventListener('click', () => openModal('supportModal'));
+    $('#supportBtn').addEventListener('click', () => openModal('supportModal'));
+    $('#notifyBtn').addEventListener('click', () => showToast('You have 3 new workflow notifications'));
+    $('#tourBtn').addEventListener('click', () => showToast('Tour: Challenges → Evaluation → Pilot → Evidence → Procurement'));
+
+    // Role switcher
+    $$('#roleSwitch button').forEach(btn => btn.addEventListener('click', () => {
+      $$('#roleSwitch button').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+      const r = roleConfig[btn.dataset.role]; $('#roleHeading').textContent = r.heading; $('#dashTitle').textContent = r.title; $('#dashSubtitle').textContent = r.subtitle; $('#heroTitle').textContent = r.heroTitle; $('#heroText').textContent = r.heroText;
+      showToast(`Perspective switched to ${btn.textContent}`);
+    }));
+
+    // Challenge workflow
+    function openChallengeCreator() { openModal('challengeModal'); }
+    $('#newChallengeBtn').addEventListener('click', openChallengeCreator);
+    $('#newChallengeBtn2').addEventListener('click', openChallengeCreator);
+    $('#publishChallenge').addEventListener('click', () => {
+      const title = $('#newTitle').value.trim(); const problem = $('#newProblem').value.trim(); const outcome = $('#newOutcome').value.trim();
+      if (!title || !problem || !outcome) { showToast('Complete title, problem and measurable outcome'); return; }
+      challenges.unshift({id:Date.now(), title, dept:$('#newDept').value, stage:'Open', apps:0, budget:'TBD', deadline:'30 Oct 2026', tags:['New Challenge','Outcome-led'], desc:problem + ' Outcome: ' + outcome});
+      $('#newTitle').value=''; $('#newProblem').value=''; $('#newOutcome').value=''; closeModal('challengeModal'); renderChallenges(); go('challenges'); showToast('Challenge created and added to the open marketplace');
+    });
+    $('#applyChallengeBtn').addEventListener('click', () => {
+      if (selectedChallenge) { selectedChallenge.apps += 1; renderChallenges(); closeModal('challengeDetailModal'); showToast(`Application started for “${selectedChallenge.title}”`); }
+    });
+
+    // Evaluation workflow
+    $('#submitEvaluation').addEventListener('click', () => {
+      const values = [1,2,3,4,5].map(n => Number($('#score'+n).value));
+      if (values.some(v => v < 0 || v > 10 || Number.isNaN(v))) { showToast('Scores must be between 0 and 10'); return; }
+      closeModal('evalModal'); showToast('Evaluation saved with rubric version v1.4');
+    });
+    $('#startPilotBtn').addEventListener('click', () => { closeModal('pilotModal'); showToast('Pilot record created with milestone controls'); });
+
+    // Search and filters
+    ['challengeSearch','deptFilter','stageFilter'].forEach(id => { const el = $('#'+id); if (el) el.addEventListener('input', renderChallenges); });
+    $('#resetFilters').addEventListener('click', () => { $('#challengeSearch').value=''; $('#deptFilter').value='all'; $('#stageFilter').value='all'; renderChallenges(); });
+    $('#globalSearch').addEventListener('keydown', e => { if (e.key === 'Enter') { const q=e.target.value.trim(); if (!q) return; go('challenges'); $('#challengeSearch').value=q; renderChallenges(); showToast(`Showing challenge results for “${q}”`); } });
+
+    // Escape key closes any modal/drawer
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { $$('.modal-backdrop.open').forEach(m => m.classList.remove('open')); closeDrawer(); } });
+
+    // Startup search (client-side)
+    $('#startupSearch').addEventListener('input', e => {
+      const q=e.target.value.toLowerCase(); $$('#startupTable tbody tr').forEach(row => { row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+    });
+    $('#startupSector').addEventListener('change', e => {
+      const q=e.target.value.toLowerCase(); $$('#startupTable tbody tr').forEach(row => { row.style.display = q==='all' || row.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+    });
+
+    // Ensure inline buttons referenced later exist before startup.
+    renderChallenges();
+  </script>
+</body>
+</html>
